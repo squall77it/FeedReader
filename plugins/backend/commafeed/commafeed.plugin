@@ -1,0 +1,9 @@
+[Plugin]
+Module=commafeed
+Loader=C
+Name=CommaFeed
+Version=0.1
+Description=Add CommaFeed backend to FeedReader
+Authors=Gianni Lerro <squall77it@gmail.com>
+Copyright=Copyright © 2017-2018 Gianni Lerro
+Website=http://jangernert.github.io/FeedReader/

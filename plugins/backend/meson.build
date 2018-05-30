@@ -8,7 +8,8 @@ supported_backend_plugins = [
   'local',
   'oldreader',
   'owncloud',
-  'ttrss'
+  'ttrss',
+  'commafeed'
 ]
 backend_plugins = get_option('backend-plugins')
 
