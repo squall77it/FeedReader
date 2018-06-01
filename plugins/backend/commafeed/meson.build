@@ -6,7 +6,8 @@ commafeed_resources = gnome.compile_resources(
 shared_library(
   'commafeed',
   [
-    'commafeedInterface.vala'
+    'commafeedInterface.vala',
+    'commafeedUtils.vala'
   ],
   commafeed_resources,
   c_args: c_args,

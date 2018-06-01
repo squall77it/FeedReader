@@ -21,7 +21,7 @@
 
 public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInterface {
 
-
+	private CommaFeedUtils m_utils;
 
 	private Gtk.Entry m_urlEntry;
 	private Gtk.Entry m_userEntry;
@@ -33,6 +33,8 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 
 	private bool m_need_htaccess = false;
 
+	private DataBaseReadOnly m_db;
+	private DataBase m_db_write;
 
 	//--------------------------------------------------------------------------------------
 	// This method gets executed right after the plugin is loaded. Do everything
@@ -40,7 +42,12 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	//--------------------------------------------------------------------------------------
 	public void init(GLib.SettingsBackend? settings_backend, Secret.Collection secrets, DataBaseReadOnly db, DataBase db_write)
 	{
-		//TODO: Implement init
+		Logger.info("CommaFeed backend: Interface init");
+
+		//TODO: Complete init
+		m_db = db;
+		m_db_write = db_write;
+		m_utils = new CommaFeedUtils(settings_backend, secrets);
 	}
 
 
@@ -114,9 +121,9 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 		m_userEntry = new Gtk.Entry();
 		m_passwordEntry = new Gtk.Entry();
 
-		m_urlEntry.activate.connect(() => { login(); });
-		m_userEntry.activate.connect(() => { login(); });
-		m_passwordEntry.activate.connect(() => { login(); });
+		m_urlEntry.activate.connect(() => { tryLogin(); });
+		m_userEntry.activate.connect(() => { tryLogin(); });
+		m_passwordEntry.activate.connect(() => { tryLogin(); });
 
 		m_passwordEntry.set_input_purpose(Gtk.InputPurpose.PASSWORD);
 		m_passwordEntry.set_visibility(false);
@@ -151,8 +158,8 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 		m_authPasswordEntry.set_input_purpose(Gtk.InputPurpose.PASSWORD);
 		m_authPasswordEntry.set_visibility(false);
 
-		m_authUserEntry.activate.connect(() => { login(); });
-		m_authPasswordEntry.activate.connect(() => { login(); });
+		m_authUserEntry.activate.connect(() => { tryLogin(); });
+		m_authPasswordEntry.activate.connect(() => { tryLogin(); });
 
 		var authGrid = new Gtk.Grid();
 		authGrid.margin = 10;
@@ -184,7 +191,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 		loginButton.halign = Gtk.Align.END;
 		loginButton.set_size_request(80, 30);
 		loginButton.get_style_context().add_class(Gtk.STYLE_CLASS_SUGGESTED_ACTION);
-		loginButton.clicked.connect(() => { login(); });
+		loginButton.clicked.connect(() => { tryLogin(); });
 
 		var box = new Gtk.Box(Gtk.Orientation.VERTICAL, 10);
 		box.valign = Gtk.Align.CENTER;
@@ -195,10 +202,9 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 		box.pack_start(m_revealer, true, true, 10);
 		box.pack_end(loginButton, false, false, 20);
 
-		//TODO: Implement m_utils.getUnmodifiedURL(), m_utils.getUser(), m_utils.getPassword()
-		//m_urlEntry.set_text(m_utils.getUnmodifiedURL());
-		//m_userEntry.set_text(m_utils.getUser());
-		//m_passwordEntry.set_text(m_utils.getPassword());
+		m_urlEntry.set_text(m_utils.getUnmodifiedURL());
+		m_userEntry.set_text(m_utils.getUser());
+		m_passwordEntry.set_text(m_utils.getPassword());
 
 		return box;
 	}
@@ -257,7 +263,16 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	//--------------------------------------------------------------------------------------
 	public void writeData()
 	{
-		//TODO: Implement write loggin data to gsettings
+		Logger.info("CommaFeed backend: Interface writeData");
+
+		m_utils.setURL(m_urlEntry.get_text());
+		m_utils.setUser(m_userEntry.get_text().strip());
+		m_utils.setPassword(m_passwordEntry.get_text().strip());
+		if(m_need_htaccess)
+		{
+			m_utils.setHtAccessUser(m_authUserEntry.get_text().strip());
+			m_utils.setHtAccessPassword(m_authPasswordEntry.get_text().strip());
+		}
 	}
 
 
@@ -344,8 +359,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	{
 		Logger.info("CommaFeed backend: Interface accountName");
 
-		//TODO: Implement m_utils.getUser()
-		return ""; //m_utils.getUser();
+		return m_utils.getUser();
 	}
 
 
@@ -357,8 +371,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	{
 		Logger.info("CommaFeed backend: Interface getServerURL");
 
-		//TODO: Implement m_utils.getURL()
-		return ""; //m_utils.getURL();
+		return m_utils.getURL();
 	}
 
 
@@ -470,7 +483,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	{
 		Logger.info("CommaFeed backend: Interface resetAccount");
 
-		//TODO: Implement m_utils.resetAccount();
+		m_utils.resetAccount();
 	}
 
 
@@ -534,8 +547,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	{
 		Logger.info("CommaFeed backend: Interface serverAvailable");
 
-		//TODO: Implement Utils.ping(m_utils.getUnmodifiedURL());
-		return true; //Utils.ping(m_utils.getUnmodifiedURL());
+		return Utils.ping(m_utils.getUnmodifiedURL());
 	}
 
 
