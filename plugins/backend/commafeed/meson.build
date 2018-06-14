@@ -7,7 +7,9 @@ shared_library(
   'commafeed',
   [
     'commafeedInterface.vala',
-    'commafeedUtils.vala'
+    'commafeedUtils.vala',
+    'commafeedAPI.vala',
+    'commafeedConnection.vala'
   ],
   commafeed_resources,
   c_args: c_args,

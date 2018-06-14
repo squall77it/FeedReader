@@ -22,6 +22,7 @@
 public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInterface {
 
 	private CommaFeedUtils m_utils;
+	private CommaFeedAPI m_api;
 
 	private Gtk.Entry m_urlEntry;
 	private Gtk.Entry m_userEntry;
@@ -44,10 +45,10 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 	{
 		Logger.info("CommaFeed backend: Interface init");
 
-		//TODO: Complete init
 		m_db = db;
 		m_db_write = db_write;
 		m_utils = new CommaFeedUtils(settings_backend, secrets);
+		m_api = new CommaFeedAPI(m_utils, m_db);
 	}
 
 
@@ -523,7 +524,7 @@ public class FeedReader.CommaFeedInterface : Peas.ExtensionBase, FeedServerInter
 		Logger.info("CommaFeed backend: Interface login");
 
 		//TODO: Implement m_api.userLogin()
-		return LoginResponse.UNKNOWN_ERROR; //m_api.userLogin();
+		return m_api.userLogin();
 	}
 
 
